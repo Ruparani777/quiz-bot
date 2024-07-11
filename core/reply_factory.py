@@ -39,6 +39,24 @@ def get_next_question(current_question_id):
     '''
     Fetches the next question from the PYTHON_QUESTION_LIST based on the current_question_id.
     '''
+    if current_question_id is None:
+        # If there is no current question, start with the first question
+        next_question = PYTHON_QUESTION_LIST[0]
+    else:
+        # Find the index of the current question
+        current_index = next(
+            (index for (index, d) in enumerate(PYTHON_QUESTION_LIST) if d["id"] == current_question_id), 
+            None
+        )
+        if current_index is None or current_index + 1 >= len(PYTHON_QUESTION_LIST):
+            # If current question is not found or it's the last question, no next question
+            return None, None
+        next_question = PYTHON_QUESTION_LIST[current_index + 1]
+
+    next_question_text = next_question["question_text"]
+    next_question_id = next_question["id"]
+    
+    return next_question_text, next_question_id
 
     return "dummy question", -1
 
@@ -47,6 +65,21 @@ def generate_final_response(session):
     '''
     Creates a final result message including a score based on the answers
     by the user for questions in the PYTHON_QUESTION_LIST.
-    '''
+    '''user_answers = session.get('answers', {})
+    correct_answers = CORRECT_ANSWERS
+    score = 0
+
+    for question_id, correct_answer in correct_answers.items():
+        if user_answers.get(question_id) == correct_answer:
+            score += 1
+
+    total_questions = len(correct_answers)
+    final_message = (
+        f"Quiz Completed!\n"
+        f"Your Score: {score} out of {total_questions}\n\n"
+        f"Thank you for participating!"
+    )
+
+    
 
     return "dummy result"
